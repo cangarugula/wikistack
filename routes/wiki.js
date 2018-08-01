@@ -24,8 +24,14 @@ router.post('/', async (req,res,next)=> {
     let page = await Page.create({
       title: req.body.title,
       content: req.body.content,
-      slug: slugger(req.body.title)
+      slug: slugger(req.body.title),
+      where: {
+        authorId: user.dataValues.id
+      }
     })
+
+    page.setAuthor(user);
+    page.save()
     console.log(user)
     console.log(page)
 

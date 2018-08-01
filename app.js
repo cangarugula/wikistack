@@ -36,7 +36,7 @@ app.get('/', async (req,res,next) => {
 
 const syncing = async ()=> {
   try{
-    await db.sync()
+    await db.sync({force:true})
     await Page.sync()
     await User.sync()
     await db.authenticate()
