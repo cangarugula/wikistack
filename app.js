@@ -3,9 +3,6 @@ const express = require('express')
 const wikiRoutes = require('./routes/wiki');
 const userRoutes = require('./routes/user')
 
-// const pg = require('pg');
-// const client = new pg.Client('postgres://localhost:wikistack')
-// client.connect()
 const { db, Page, User } = require('./models')
 const index = require('./views/index')
 const app = express()
@@ -20,8 +17,17 @@ app.use('/wiki',wikiRoutes);
 app.use('/user',userRoutes);
 
 
-app.get('/', (req,res,next) => {
-  res.send(index.layout('hello world'))
+app.get('/', async (req,res,next) => {
+  try{
+  let pages = await Page.findAll().map(page=> {
+    return page.dataValues
+  })
+
+  console.log(pages)
+  res.send(index.main(pages))
+  } catch (error) {
+    res.send(error)
+  }
 })
 
 
@@ -30,11 +36,11 @@ app.get('/', (req,res,next) => {
 
 const syncing = async ()=> {
   try{
+    await db.sync()
+    await Page.sync()
+    await User.sync()
     await db.authenticate()
     console.log('connected to the database')
-    await db.sync({force:true})
-    await User.sync()
-    await Page.sync()
   } catch (error) {
     console.log(error)
   }
